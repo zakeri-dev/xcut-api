@@ -22,6 +22,7 @@ export class UsersController {
 
   @Post('/sendCode')
   login(@Body() body: any) {
+    console.log('body');
     return this.usersService.sendCode(body);
   }
 
