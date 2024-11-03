@@ -4,6 +4,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import pb from 'lib/pb';
 import axios from 'axios';
 
+function generateRandomFourDigitNumber() {
+  const randomNum = Math.floor(1000 + Math.random() * 9000);
+  return randomNum;
+}
+
 @Injectable()
 export class UsersService {
   async create(body: any) {
@@ -19,63 +24,112 @@ export class UsersService {
 
   async sendCode(body: any) {
     // console.log(body);
-    function generateRandomFourDigitNumber() {
-      const randomNum = Math.floor(1000 + Math.random() * 9000);
-      return randomNum;
-    }
-    const random4DigitNumber = generateRandomFourDigitNumber();
 
-    const authData = await pb
-      .collection('users')
-      .authWithPassword(body.email, body.password);
-    // console.log(authData);
+    try {
+      const random4DigitNumber = generateRandomFourDigitNumber();
 
-    const update =
-      authData &&
-      (await pb.collection('users').update(authData.record.id, {
-        vercode: random4DigitNumber,
-        verjwt: authData.token,
-      }));
-    console.log(update);
+      const authData = await pb
+        .collection('users')
+        .authWithPassword(body.email, body.password);
+      // console.log(authData);
 
-    let config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://notif.xcuts.co.uk/mail',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: {
+      const update =
+        authData &&
+        (await pb.collection('users').update(authData.record.id, {
+          vercode: random4DigitNumber,
+          verjwt: authData.token,
+        }));
+      console.log(update);
+
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://notif.xcuts.co.uk/mail',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          email: body.email,
+          code: random4DigitNumber,
+        },
+      };
+
+      update &&
+        axios
+          .request(config)
+          .then((response) => {
+            console.log(response.data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+
+      return {
+        message: 'Send code successfully',
+      };
+    } catch (err) {
+      console.log('first');
+      await pb.collection('users').create({
         email: body.email,
-        code: random4DigitNumber,
-      },
-    };
+        password: body.password,
+        passwordConfirm: body.password,
+      });
 
-    update &&
-      axios
-        .request(config)
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      const random4DigitNumber = generateRandomFourDigitNumber();
 
-    return {
-      message: 'Send code successfully',
-    };
+      const authData = await pb
+        .collection('users')
+        .authWithPassword(body.email, body.password);
+      // console.log(authData);
+
+      const update =
+        authData &&
+        (await pb.collection('users').update(authData.record.id, {
+          vercode: random4DigitNumber,
+          verjwt: authData.token,
+        }));
+      console.log(update);
+
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://notif.xcuts.co.uk/mail',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          email: body.email,
+          code: random4DigitNumber,
+        },
+      };
+
+      update &&
+        axios
+          .request(config)
+          .then((response) => {
+            console.log(response.data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+
+      return {
+        message: 'Send code successfully',
+      };
+    }
   }
 
   async verification(body: any) {
-    console.log(body);
+    console.log(body.email);
     const record = await pb
       .collection('users')
-      .getFirstListItem(`email="${body.email}"`);
+      .getFirstListItem(`email='${body.email}'`);
     console.log(record);
     if (record.vercode == body.otp) {
       console.log('first');
       return {
         access: record.verjwt,
+        id: record.id,
       };
     }
     return {
