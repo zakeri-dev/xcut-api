@@ -26,7 +26,7 @@ export class UsersController {
     return this.usersService.sendCode(body);
   }
 
-  @Post()
+  @Post('/create')
   create(@Body() body: any) {
     return this.usersService.create(body);
   }

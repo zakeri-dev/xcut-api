@@ -12,7 +12,13 @@ function generateRandomFourDigitNumber() {
 @Injectable()
 export class UsersService {
   async create(body: any) {
-    const record = await pb.collection('users').create(body);
+    console.log(body)
+    const record = await pb.collection('users').create({
+      email: body.email,
+      emailVisibility: true,
+      password: body.password,
+      passwordConfirm: body.passwordConfirm,
+    });
 
     if (record) {
       pb.collection('users').requestVerification(body.email);
@@ -121,10 +127,12 @@ export class UsersService {
 
   async verification(body: any) {
     console.log(body.email);
+
+
     const record = await pb
       .collection('users')
       .getFirstListItem(`email='${body.email}'`);
-    console.log(record);
+    // console.log('users', record);
     if (record.vercode == body.otp) {
       console.log('first');
       return {
