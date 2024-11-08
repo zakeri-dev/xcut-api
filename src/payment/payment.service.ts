@@ -50,7 +50,9 @@ export class PaymentService {
       success_url: `https://gate.xcuts.co.uk/verify?session_id=${user.id}`,
       cancel_url: `https://gate.xcuts.co.uk/verify?session_id=${user.id}`,
     });
-    return res.redirect(session.url);
+    return {
+      payment: session.url,
+    };
   }
 
   async PaymentSend(price, user) {
