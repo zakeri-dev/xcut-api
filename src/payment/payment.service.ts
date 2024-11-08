@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import pb from 'lib/pb';
+import axios from 'axios';
 
 const stripe = require('stripe')(
   'sk_test_51Q8lBDQ2aujTRTPd9fybVZBFD8fsVptgLB5946WwBRELlPNsKaB2eBovm77gXLolAmL5XxMPHVGIYe13nnBin1Bj00w4ptiZ1I',
@@ -8,18 +10,34 @@ const stripe = require('stripe')(
 
 @Injectable()
 export class PaymentService {
-  async createPayment(createPaymentDto: any) {
+  async createPayment(createPaymentDto: { userid: string }, res) {
+    // console.log(createPaymentDto.userid);
+    const user = await pb
+      .collection('users')
+      .getFirstListItem(`id='${createPaymentDto.userid}'`, {
+        expand: 'cart_full_sheets',
+      });
+    console.log(user);
+
+    const cardItems = await user?.expand?.cart_full_sheets;
+
+    const allprice = cardItems?.map((item: any) => item?.full_sheet_price);
+    function sumArray(arr) {
+      return arr.reduce((a, b) => a + b, 0);
+    }
+    // console.log('allprice', sumArray(allprice));
+    // await this.PaymentSend(sumArray(allprice), user);
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: createPaymentDto.description,
-              description: createPaymentDto.description,
-              images: [createPaymentDto.logo],
+              name: 'cart_full_sheets',
+              description: user.id,
+              images: ['https://i.ibb.co/fxpS6k7/Untitled-1.jpg'],
             },
-            unit_amount: Math.round(createPaymentDto.price * 100),
+            unit_amount: Math.round(sumArray(allprice) * 100),
             // Provide the exact Product ID (for example, prod_1234) of the product you want to sell
             // price: createPaymentDto.product,
             // quantity: 1,
@@ -29,13 +47,41 @@ export class PaymentService {
         },
       ],
       mode: 'payment',
-      success_url: `https://gate.xcuts.co.uk/return.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://gate.xcuts.co.uk/return.html?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `https://gate.xcuts.co.uk/verify?session_id=${user.id}`,
+      cancel_url: `https://gate.xcuts.co.uk/verify?session_id=${user.id}`,
     });
+    return res.redirect(session.url);
+  }
+
+  async PaymentSend(price, user) {
+    const session = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: 'cart_full_sheets',
+              description: user.id,
+              images: ['https://i.ibb.co/fxpS6k7/Untitled-1.jpg'],
+            },
+            unit_amount: Math.round(price * 100),
+            // Provide the exact Product ID (for example, prod_1234) of the product you want to sell
+            // price: createPaymentDto.product,
+            // quantity: 1,
+          },
+          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `https://gate.xcuts.co.uk/verify?session_id=${user.id}`,
+      cancel_url: `https://gate.xcuts.co.uk/verify?session_id=${user.id}`,
+    });
+    console.log(session.url);
     return session;
   }
 
-  findAll() {
+  async verifyPayment() {
     return `This action returns all payment`;
   }
 

@@ -126,7 +126,7 @@ export class UsersService {
   }
 
   async verification(body: any) {
-    console.log(body.email);
+    // console.log(body.email);
 
 
     const record = await pb
