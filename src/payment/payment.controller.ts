@@ -18,9 +18,9 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('/stripe')
-  createPayment(@Body() createPaymentDto: { userid: string }, @Res() res) {
+  createPayment(@Body() createPaymentDto: { userid: string }) {
     console.log(createPaymentDto);
-    return this.paymentService.createPayment(createPaymentDto, res);
+    return this.paymentService.createPayment(createPaymentDto);
   }
 
   @Post('/verify')

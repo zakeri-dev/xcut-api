@@ -10,7 +10,7 @@ const stripe = require('stripe')(
 
 @Injectable()
 export class PaymentService {
-  async createPayment(createPaymentDto: { userid: string }, res) {
+  async createPayment(createPaymentDto: { userid: string }) {
     // console.log(createPaymentDto.userid);
     const user = await pb
       .collection('users')
@@ -79,8 +79,8 @@ export class PaymentService {
       success_url: `https://gate.xcuts.co.uk/verify?session_id=${user.id}`,
       cancel_url: `https://gate.xcuts.co.uk/verify?session_id=${user.id}`,
     });
-    console.log(session.url);
-    return session;
+    // console.log(session.url);
+    return session.url;
   }
 
   async verifyPayment() {
