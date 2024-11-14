@@ -12,7 +12,7 @@ function generateRandomFourDigitNumber() {
 @Injectable()
 export class UsersService {
   async create(body: any) {
-    console.log(body)
+    console.log(body);
     const record = await pb.collection('users').create({
       email: body.email,
       emailVisibility: true,
@@ -50,7 +50,7 @@ export class UsersService {
       let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://notif.xcuts.co.uk/mail',
+        url: 'https://notfi.xcuts.co.uk/mail',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -99,7 +99,7 @@ export class UsersService {
       let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://notif.xcuts.co.uk/mail',
+        url: 'https://notfi.xcuts.co.uk/mail',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -127,7 +127,6 @@ export class UsersService {
 
   async verification(body: any) {
     // console.log(body.email);
-
 
     const record = await pb
       .collection('users')
