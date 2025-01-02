@@ -68,7 +68,7 @@ export class PaymentService {
           },
         ],
         mode: 'payment',
-        success_url: `https://gate.xcuts.co.uk/payment/verify?session_id=${createPaymentDto.userid}`,
+        success_url: `https://gatei.xcuts.co.uk/payment/verify?session_id=${createPaymentDto.userid}`,
         cancel_url: `https://xcuts.co.uk/shop-online`,
       });
       // console.log('+++++++++', session);
