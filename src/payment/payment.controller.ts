@@ -19,7 +19,7 @@ export class PaymentController {
 
   @Post('/stripe')
   createPayment(@Body() createPaymentDto: { userid: string }) {
-    console.log(createPaymentDto);
+    // console.log(createPaymentDto);
     return this.paymentService.createPayment(createPaymentDto);
   }
 
