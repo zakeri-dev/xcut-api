@@ -23,10 +23,12 @@ export class PaymentController {
     return this.paymentService.createPayment(createPaymentDto);
   }
 
-  @Post('/verify')
-  verifyPayment(@Query('user') session_id: string) {
-    console.log(session_id);
-    return this.paymentService.verifyPayment();
+  @Get('/verify')
+  verifyPayment(@Query('session_id') session_id: string, @Res() res: any) {
+    // console.log(session_id);
+    this.paymentService.verifyPayment(session_id);
+
+    return res.redirect('https://xcuts.co.uk/');
   }
 
   @Get(':id')

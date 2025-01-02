@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Redirect } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import pb from 'lib/pb';
@@ -78,11 +78,97 @@ export class PaymentService {
     } catch (error) {
       console.error(error);
     }
-
   }
 
-  async verifyPayment() {
-    return `This action returns all payment`;
+  async verifyPayment(session_id: string) {
+    // console.log(session_id);
+
+    const userd = await directus.request(
+      login('spm@mzakeri.ir', 'Ss@46537678'),
+    );
+
+    // findeUser
+    const findeUser = {
+      method: 'GET',
+      url: 'https://shop.xcuts.co.uk/users',
+      params: {
+        fields: 'cart_full_sheets.thickness_id.*',
+        filter: { id: { _eq: session_id } },
+      },
+      headers: {
+        Authorization: `Bearer ${userd.access_token}`,
+        'content-type': 'application/json',
+      },
+    };
+
+    try {
+      const { data: findeUserData } = await axios.request(findeUser);
+      // console.log(data?.data[0]);
+      const allprice = findeUserData?.data[0]?.cart_full_sheets?.map(
+        (item: any) => item?.thickness_id?.price_full_sheet,
+      );
+      // console.log(allprice);
+      function sumArray(arr) {
+        return arr.reduce((a, b) => a + b, 0);
+      }
+      // console.log(Math.round(sumArray(allprice) * 100));
+
+      const cart_full_sheets = findeUserData?.data[0]?.cart_full_sheets?.map(
+        (item: any) => {
+          return { thickness_id: item?.thickness_id?.id };
+        },
+      );
+      // console.log(cart_full_sheets);
+
+      const createOrder = {
+        method: 'POST',
+        url: 'https://shop.xcuts.co.uk/items/orders',
+        headers: {
+          Authorization: `Bearer ${userd.access_token}`,
+          'content-type': 'application/json',
+        },
+        data: {
+          owner: [
+            {
+              directus_users_id: session_id,
+            },
+          ],
+          total_price: await Math.round(sumArray(allprice) * 100),
+          cart_full_sheets: await cart_full_sheets,
+        },
+      };
+
+      try {
+        const { data: createOrderData } = await axios.request(createOrder);
+        console.log('createOrderData', createOrderData);
+
+        const updateUser = {
+          method: 'PATCH',
+          url: `https://shop.xcuts.co.uk/users/${session_id}`,
+          headers: {
+            Authorization: `Bearer ${userd.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          data: {
+            cart_full_sheets: [],
+          },
+        };
+
+        try {
+          const { data: updateUserData } = await axios.request(updateUser);
+          console.log('updateUserData', updateUserData);
+        } catch (error) {
+          console.error(error);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    // i want to redirect to my site after payment
+    return true;
   }
 
   findOne(id: number) {
