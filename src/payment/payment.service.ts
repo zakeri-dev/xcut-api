@@ -111,7 +111,13 @@ export class PaymentService {
       const { data: findeUserData } = await axios.request(findeUser);
       // console.log(data?.data[0]);
       const allprice = findeUserData?.data[0]?.cart_full_sheets?.map(
-        (item: any) => item?.thickness_id?.price_full_sheet,
+        (item: any) =>
+          parseFloat(
+            (
+              item?.thickness_id?.price_full_sheet *
+              (1 + item?.thickness_id?.tax_percent / 100)
+            ).toFixed(2),
+          ),
       );
       // console.log(allprice);
       function sumArray(arr) {
