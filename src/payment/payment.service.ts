@@ -7,7 +7,7 @@ import directus from 'lib/directus';
 import { login, readItems } from '@directus/sdk';
 
 const stripe = require('stripe')(
-  'sk_test_51OyZa5LOfTBWBd1ayk8C49xC8f4GFvRqnX58HWoOz09IHxKtPZT54wGEyQN6Gi8YhfjAjqkwiMtaBp8q6DMbSLoo00pp3ZqbNm',
+  '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',
 );
 
 @Injectable()
@@ -50,7 +50,8 @@ export class PaymentService {
         line_items: [
           {
             price_data: {
-              currency: 'eur',
+              defaultCountry: 'GB',
+              defaultCurrency: 'gbp',
               product_data: {
                 name: 'cart_full_sheets',
                 description: createPaymentDto.userid,
