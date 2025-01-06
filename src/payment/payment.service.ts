@@ -38,8 +38,11 @@ export class PaymentService {
     try {
       const { data } = await axios.request(options);
       // console.log(data?.data[0]);
-      const allprice = data?.data[0]?.cart_full_sheets?.map(
-        (item: any) => item?.thickness_id?.price_full_sheet,
+      const allprice = data?.data[0]?.cart_full_sheets?.map((item: any) =>
+        (
+          item?.thickness_id?.price_full_sheet *
+          (1 + item?.thickness_id?.tax_percent / 100)
+        ).toFixed(2),
       );
       // console.log(allprice);
       function sumArray(arr) {
