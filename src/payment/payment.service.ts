@@ -50,13 +50,14 @@ export class PaymentService {
       function sumArray(arr) {
         return arr.reduce((a, b) => a + b, 0);
       }
+      // console.log(sumArray(allprice));
       // console.log(Math.round(sumArray(allprice) * 100));
       const session = await stripe.checkout.sessions.create({
         line_items: [
           {
             price_data: {
-              defaultCountry: 'GB',
-              defaultCurrency: 'gbp',
+              // defaultCountry: 'GB',
+              currency: 'gbp',
               product_data: {
                 name: 'cart_full_sheets',
                 description: createPaymentDto.userid,
@@ -64,7 +65,7 @@ export class PaymentService {
                   'https://cms.xcuts.co.uk/assets/ece59885-603f-463b-8f56-2c9dfbaeccdb',
                 ],
               },
-              unit_amount: Math.round(sumArray(allprice) * 100),
+              unit_amount: sumArray(allprice),
               // Provide the exact Product ID (for example, prod_1234) of the product you want to sell
               // price: createPaymentDto.product,
               // quantity: 1,
