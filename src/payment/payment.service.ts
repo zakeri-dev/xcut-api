@@ -56,8 +56,8 @@ export class PaymentService {
         line_items: [
           {
             price_data: {
-              // defaultCountry: 'GB',
-              currency: 'gbp',
+              defaultCountry: 'GB',
+              defaultCurrency: 'gbp',
               product_data: {
                 name: 'cart_full_sheets',
                 description: createPaymentDto.userid,
@@ -65,7 +65,7 @@ export class PaymentService {
                   'https://cms.xcuts.co.uk/assets/ece59885-603f-463b-8f56-2c9dfbaeccdb',
                 ],
               },
-              unit_amount: sumArray(allprice),
+              unit_amount: Math.round(sumArray(allprice) * 100),
               // Provide the exact Product ID (for example, prod_1234) of the product you want to sell
               // price: createPaymentDto.product,
               // quantity: 1,
