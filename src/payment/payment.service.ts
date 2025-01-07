@@ -38,7 +38,7 @@ export class PaymentService {
     try {
       const { data } = await axios.request(options);
       // console.log(data?.data[0]);
-      const allprice = data?.data[0]?.cart_full_sheets?.map((item: any) =>
+      const allPrices = data?.data[0]?.cart_full_sheets?.map((item: any) =>
         parseFloat(
           (
             item?.thickness_id?.price_full_sheet *
@@ -46,18 +46,18 @@ export class PaymentService {
           ).toFixed(2),
         ),
       );
-      // console.log(allprice);
-      function sumArray(arr) {
-        return arr.reduce((a, b) => a + b, 0);
+      // console.log(allPrices);
+      function sumArray(arr: number[]): number {
+        return arr.reduce((a: number, b: number) => a + b, 0);
       }
-      // console.log(sumArray(allprice));
-      // console.log(Math.round(sumArray(allprice) * 100));
+      // console.log(sumArray(allPrices));
+      // console.log(Math.round(sumArray(allPrices) * 100));
       const session = await stripe.checkout.sessions.create({
         line_items: [
           {
             price_data: {
-              defaultCountry: 'GB',
-              defaultCurrency: 'gbp',
+              // defaultCountry: 'GB',
+              currency: 'gbp',
               product_data: {
                 name: 'cart_full_sheets',
                 description: createPaymentDto.userid,
@@ -65,7 +65,7 @@ export class PaymentService {
                   'https://cms.xcuts.co.uk/assets/ece59885-603f-463b-8f56-2c9dfbaeccdb',
                 ],
               },
-              unit_amount: Math.round(sumArray(allprice) * 100),
+              unit_amount: Math.round(sumArray(allPrices) * 100),
               // Provide the exact Product ID (for example, prod_1234) of the product you want to sell
               // price: createPaymentDto.product,
               // quantity: 1,
